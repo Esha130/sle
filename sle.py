@@ -89,7 +89,6 @@ plt.xticks(rotation=45)
 plt.tight_layout()
 st.pyplot(plt)
 
-
 # Streamlit app interface
 st.title("Hotel Price Prediction and City Guide")
 
@@ -237,11 +236,22 @@ if 'average_price' in filtered_restaurants.columns:
 # Create a new column that combines the cuisines
 filtered_restaurants['cuisines'] = filtered_restaurants[selected_cuisines].apply(lambda x: ', '.join(x.index[x.astype(bool)]), axis=1)
 
-# Show the filtered restaurants
 if not filtered_restaurants.empty:
     st.write(f"**Found {len(filtered_restaurants)} restaurants in {city}:**")
-    for index, row in filtered_restaurants.iterrows():
-        st.write(f"**Name:** {row['name']}, **Rating:** {row['rating']}, **Average Price:** ₹{row['average_price']}, **Cuisines:** {row['cuisines']}")
+
+    # Create a DataFrame for filtered restaurants
+    restaurant_df = filtered_restaurants[['restaurant_name', 'rating', 'average_price']].copy()
+
+    # Rename columns for display
+    restaurant_df = restaurant_df.rename(columns={
+        'restaurant_name': 'Restaurant Name',
+        'rating': 'Rating',
+        'average_price': 'Price (₹)',
+        'cuisines': 'Cuisines'
+    })
+
+    # Display the restaurant DataFrame as a table
+    st.table(restaurant_df)
 else:
     st.write("No restaurants found matching your criteria.")
 
@@ -258,9 +268,13 @@ else:
     filtered_places = places_to_visit[(places_to_visit['City'] == city) & 
                                        (places_to_visit['Type'] == selected_place_type)]
 
+# Top Places to Visit in Table Format
 if not filtered_places.empty:
-    st.write(filtered_places[['Name', 'Significance', 'Entrance Fee in INR']])
+    st.write(f"Top Places to Visit in {city}:")
+    st.table(filtered_places[['Name', 'Significance', 'Entrance Fee in INR']].rename(columns={
+        'Name': 'Place Name',
+        'Significance': 'Significance',
+        'Entrance Fee in INR': 'Entrance Fee (₹)'
+    }))
 else:
-    st.write("No tourist places found for this city.")
-    
-
+    st.write("No tourist places found for this city.")
